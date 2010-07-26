@@ -6,8 +6,8 @@
 
 Summary:		Provides a wrapper to the GraphicsMagick library
 Name:		php-pecl-%peclName
-Version:		1.0.2b1
-Release:		3%{?dist}
+Version:		1.0.5b1
+Release:		5%{?dist}
 License:		PHP
 Group:		Development/Libraries
 Source0:		http://pecl.php.net/get/%peclName-%{version}.tgz
@@ -26,6 +26,8 @@ Requires:		php(api) = %{php_core_api}
 Requires:		php-api = %{php_apiver}
 %endif
 Provides:		php-pecl(%peclName) = %{version}
+
+Conflicts:	php-pecl-imagick
 
 %description
 %peclName is a php extension to create, modify and obtain meta information of
@@ -79,6 +81,13 @@ fi
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/php.d/%peclName.ini
 
 %changelog
+* Mon Jul 26 2010 Pavel Alexeev <Pahan@Hubbitus.info> - 1.0.5b1-5
+- Update to 1.0.5b1
+- Add Conflicts: php-pecl-imagick - BZ#559675
+
+* Sun Jan 31 2010 Pavel Alexeev <Pahan@Hubbitus.info> - 1.0.3b3-4
+- Update to 1.0.3b3
+
 * Tue Nov 3 2009 Pavel Alexeev <Pahan@Hubbitus.info> - 1.0.2b1-3
 - Fedora Review started, thanks to Andrew Colin Kissa.
 - Remove macros %%{__make} in favour to plain make.
