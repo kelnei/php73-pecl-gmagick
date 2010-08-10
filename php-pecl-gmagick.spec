@@ -60,9 +60,7 @@ chmod 0644 README
 
 %check
 # simple module load test
-php --no-php-ini \
-	--define extension_dir=modules \
-	--define extension=gmagick.so \
+php --no-php-ini --define extension=./%peclName-%{version}/modules/gmagick.so \
 	--modules | grep %peclName
 
 %clean
