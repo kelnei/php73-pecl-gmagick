@@ -7,7 +7,7 @@
 Summary:		Provides a wrapper to the GraphicsMagick library
 Name:		php-pecl-%peclName
 Version:		1.0.5b1
-Release:		5%{?dist}
+Release:		6%{?dist}
 License:		PHP
 Group:		Development/Libraries
 Source0:		http://pecl.php.net/get/%peclName-%{version}.tgz
@@ -58,6 +58,13 @@ install -m 0664 %{SOURCE1} %{buildroot}%{_sysconfdir}/php.d/%peclName.ini
 
 chmod 0644 README
 
+%check
+# simple module load test
+php --no-php-ini \
+	--define extension_dir=modules \
+	--define extension=gmagick.so \
+	--modules | grep %peclName
+
 %clean
 rm -rf %{buildroot}
 
@@ -81,6 +88,9 @@ fi
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/php.d/%peclName.ini
 
 %changelog
+* Tue Aug 10 2010 Pavel Alexeev <Pahan@Hubbitus.info> - 1.0.5b1-6
+- Add simple %%check section by suggestion from Remi Collet (http://pecl.php.net/bugs/17991).
+
 * Mon Jul 26 2010 Pavel Alexeev <Pahan@Hubbitus.info> - 1.0.5b1-5
 - Update to 1.0.5b1
 - Add Conflicts: php-pecl-imagick - BZ#559675
