@@ -6,8 +6,8 @@
 
 Summary:		Provides a wrapper to the GraphicsMagick library
 Name:		php-pecl-%peclName
-Version:		1.0.5b1
-Release:		6%{?dist}
+Version:		1.0.7b1
+Release:		7%{?dist}
 License:		PHP
 Group:		Development/Libraries
 Source0:		http://pecl.php.net/get/%peclName-%{version}.tgz
@@ -88,6 +88,9 @@ fi
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/php.d/%peclName.ini
 
 %changelog
+* Tue Aug 10 2010 Pavel Alexeev <Pahan@Hubbitus.info> - 1.0.7b1-7
+- Update to 1.0.7b1 version due to previous mentioned bug.
+
 * Tue Aug 10 2010 Pavel Alexeev <Pahan@Hubbitus.info> - 1.0.5b1-6
 - Add simple %%check section by suggestion from Remi Collet (http://pecl.php.net/bugs/17991).
 
