@@ -7,7 +7,7 @@
 Summary:		Provides a wrapper to the GraphicsMagick library
 Name:		php-pecl-%peclName
 Version:		1.0.7b1
-Release:		8%{?dist}
+Release:		9%{?dist}
 License:		PHP
 Group:		Development/Libraries
 Source0:		http://pecl.php.net/get/%peclName-%{version}.tgz
@@ -19,7 +19,7 @@ BuildRequires:	php-pear >= 1.4.7
 BuildRequires: php-devel >= 5.1.3, GraphicsMagick-devel >= 1.2.6
 Requires(post):	%{__pecl}
 Requires(postun):	%{__pecl}
-%if %{?php_zend_api}0
+%if 0%{?php_zend_api:1}
 Requires:		php(zend-abi) = %{php_zend_api}
 Requires:		php(api) = %{php_core_api}
 %else
@@ -86,6 +86,9 @@ fi
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/php.d/%peclName.ini
 
 %changelog
+* Mon Sep 12 2011 Pavel Alexeev <Pahan@Hubbitus.info> - 1.0.7b1-9
+- Fix FBFS f16-17. Bz#716217
+
 * Wed Feb 09 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.0.7b1-8
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
 
