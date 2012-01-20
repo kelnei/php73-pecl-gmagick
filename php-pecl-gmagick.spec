@@ -2,15 +2,16 @@
 %{!?__pecl:		%{expand:	%%global __pecl	%{_bindir}/pecl}}
 %{!?php_extdir:	%{expand:	%%global php_extdir	%(php-config --extension-dir)}}
 
-%define	peclName	gmagick
+%global	peclName   gmagick
+%global prever     b1
 
 Summary:		Provides a wrapper to the GraphicsMagick library
 Name:		php-pecl-%peclName
-Version:		1.0.7b1
-Release:		10%{?dist}
+Version:		1.0.10
+Release:		0.1.%{prever}%{?dist}
 License:		PHP
 Group:		Development/Libraries
-Source0:		http://pecl.php.net/get/%peclName-%{version}.tgz
+Source0:		http://pecl.php.net/get/%peclName-%{version}%{?prever}.tgz
 Source1:		%peclName.ini
 # It is for EPEL too, so BuildRoot stil needed
 BuildRoot:	%{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
@@ -28,6 +29,14 @@ Requires:		php-api = %{php_apiver}
 Provides:		php-pecl(%peclName) = %{version}
 
 Conflicts:	php-pecl-imagick
+Conflicts:	php-magickwand
+
+# RPM 4.8
+%{?filter_provides_in: %filter_provides_in %{php_extdir}/.*\.so$}
+%{?filter_setup}
+# RPM 4.9
+%global __provides_exclude_from %{?__provides_exclude_from:%__provides_exclude_from|}%{php_extdir}/.*\\.so$
+
 
 %description
 %peclName is a php extension to create, modify and obtain meta information of
@@ -37,7 +46,7 @@ images using the GraphicsMagick API.
 %setup -qc
 
 %build
-cd %peclName-%{version}
+cd %peclName-%{version}%{?prever}
 phpize
 %{configure} --with-%peclName
 make %{?_smp_mflags}
@@ -45,7 +54,7 @@ make %{?_smp_mflags}
 %install
 rm -rf %{buildroot}
 
-cd %peclName-%{version}
+cd %peclName-%{version}%{?prever}
 
 make install \
 	INSTALL_ROOT=%{buildroot}
@@ -60,7 +69,7 @@ chmod 0644 README
 
 %check
 # simple module load test
-php --no-php-ini --define extension=./%peclName-%{version}/modules/gmagick.so \
+php --no-php-ini --define extension=./%peclName-%{version}%{?prever}/modules/gmagick.so \
 	--modules | grep %peclName
 
 %clean
@@ -80,12 +89,16 @@ fi
 
 %files
 %defattr(-,root,root,-)
-%doc %peclName-%{version}/{README,LICENSE}
+%doc %peclName-%{version}%{?prever}/{README,LICENSE}
 %{_libdir}/php/modules/%peclName.so
 %{pecl_xmldir}/%peclName.xml
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/php.d/%peclName.ini
 
 %changelog
+* Thu Jan 19 2012 Remi Collet <remi@fedoraproject.org> - 1.0.10-0.1.b1
+- update to 1.0.10b1 for php 5.4
+- add filter to avoid private-shared-object-provides
+
 * Sat Jan 14 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.0.7b1-10
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
 
