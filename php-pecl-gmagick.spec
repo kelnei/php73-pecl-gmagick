@@ -8,7 +8,7 @@
 Summary:		Provides a wrapper to the GraphicsMagick library
 Name:		php-pecl-%peclName
 Version:		1.1.0
-Release:		0.1.%{prever}%{?dist}
+Release:		0.2.%{prever}%{?dist}
 License:		PHP
 Group:		Development/Libraries
 Source0:		http://pecl.php.net/get/%peclName-%{version}%{?prever}.tgz
@@ -68,9 +68,12 @@ install -m 0664 %{SOURCE1} %{buildroot}%{_sysconfdir}/php.d/%peclName.ini
 chmod 0644 README
 
 %check
+# Epel5 php version does not support loading module from path, it relies on extension_dir configuration which master value also can not be redefined in command line.
+%if 0%{?fedora} > 0 || 0%{?rhel} > 5
 # simple module load test
 php --no-php-ini --define extension=./%peclName-%{version}%{?prever}/modules/gmagick.so \
 	--modules | grep %peclName
+%endif
 
 %clean
 rm -rf %{buildroot}
@@ -95,6 +98,9 @@ fi
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/php.d/%peclName.ini
 
 %changelog
+* Sat Mar 10 2012 Pavel Alexeev <Pahan@Hubbitus.info> - 1.1.0-0.2.RC2
+- Skip %%check on epel5.
+
 * Sat Mar 10 2012 Pavel Alexeev <Pahan@Hubbitus.info> - 1.1.0-0.1.RC2
 - Update to 1.1.0RC2 by request bz#751376
 
