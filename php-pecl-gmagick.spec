@@ -6,8 +6,8 @@
 
 Summary:		Provides a wrapper to the GraphicsMagick library
 Name:		php-pecl-%peclName
-Version:		1.0.7b1
-Release:		9%{?dist}
+Version:		1.1.0RC2
+Release:		1%{?dist}
 License:		PHP
 Group:		Development/Libraries
 Source0:		http://pecl.php.net/get/%peclName-%{version}.tgz
@@ -86,6 +86,9 @@ fi
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/php.d/%peclName.ini
 
 %changelog
+* Sat Mar 10 2012 Pavel Alexeev <Pahan@Hubbitus.info> - 1.1.0RC2-1
+- Update to 1.1.0RC2 by request bz#751376
+
 * Mon Sep 12 2011 Pavel Alexeev <Pahan@Hubbitus.info> - 1.0.7b1-9
 - Fix FBFS f16-17. Bz#716217
 
