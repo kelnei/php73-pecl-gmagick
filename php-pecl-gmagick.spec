@@ -8,7 +8,7 @@
 Summary:		Provides a wrapper to the GraphicsMagick library
 Name:		php-pecl-%peclName
 Version:		1.1.0
-Release:		0.2.%{prever}%{?dist}
+Release:		0.4.%{prever}%{?dist}
 License:		PHP
 Group:		Development/Libraries
 Source0:		http://pecl.php.net/get/%peclName-%{version}%{?prever}.tgz
@@ -68,25 +68,23 @@ install -m 0664 %{SOURCE1} %{buildroot}%{_sysconfdir}/php.d/%peclName.ini
 chmod 0644 README
 
 %check
-# Epel5 php version does not support loading module from path, it relies on extension_dir configuration which master value also can not be redefined in command line.
-%if 0%{?fedora} > 0 || 0%{?rhel} > 5
-# simple module load test
-php --no-php-ini --define extension=./%peclName-%{version}%{?prever}/modules/gmagick.so \
-	--modules | grep %peclName
-%endif
+php --no-php-ini \
+	--define extension_dir=%{buildroot}%{php_extdir} \
+	--define extension=gmagick.so \
+	-m | grep %peclName
 
 %clean
 rm -rf %{buildroot}
 
 %post
 %if 0%{?pecl_install:1}
-%{pecl_install} %{pecl_xmldir}/%peclName.xml
+%{pecl_install} %{pecl_xmldir}/%peclName.xml >/dev/null || :
 %endif
 
 %postun
 %if 0%{?pecl_uninstall:1}
 if [ "$1" -eq "0" ]; then
-	%{pecl_uninstall} %peclName
+	%{pecl_uninstall} %peclName >/dev/null || :
 fi
 %endif
 
@@ -98,6 +96,12 @@ fi
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/php.d/%peclName.ini
 
 %changelog
+* Mon Mar 26 2012 Pavel Alexeev <Pahan@Hubbitus.info> - 1.1.0-0.4.RC2
+- Made pecl installation/deinstallation silent (bz#804919).
+
+* Sat Mar 17 2012 Pavel Alexeev <Pahan@Hubbitus.info> - 1.1.0-0.3.RC2
+- Check module loading also for epel in single way. Thanks to Remi Collet for the hint.
+
 * Sat Mar 10 2012 Pavel Alexeev <Pahan@Hubbitus.info> - 1.1.0-0.2.RC2
 - Skip %%check on epel5.
 
