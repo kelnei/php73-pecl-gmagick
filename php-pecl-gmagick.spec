@@ -4,11 +4,16 @@
 
 %global	peclName   gmagick
 %global prever     RC2
+%if "%{php_version}" < "5.6"
+%global ini_name  %{peclName}.ini
+%else
+%global ini_name  40-%{peclName}.ini
+%endif
 
 Summary:		Provides a wrapper to the GraphicsMagick library
 Name:		php-pecl-%peclName
-Version:		1.1.0
-Release:		0.10.%{prever}%{?dist}
+Version:		1.1.7
+Release:		0.1.%{prever}%{?dist}
 License:		PHP
 Group:		Development/Libraries
 Source0:		http://pecl.php.net/get/%peclName-%{version}%{?prever}.tgz
@@ -63,7 +68,7 @@ make install \
 install -m 0755 -d %{buildroot}%{pecl_xmldir}
 install -m 0664 ../package.xml %{buildroot}%{pecl_xmldir}/%peclName.xml
 install -d %{buildroot}%{_sysconfdir}/php.d/
-install -m 0664 %{SOURCE1} %{buildroot}%{_sysconfdir}/php.d/%peclName.ini
+install -m 0664 %{SOURCE1} %{buildroot}%{_sysconfdir}/php.d/%{ini_name}
 
 chmod 0644 README
 
@@ -93,9 +98,14 @@ fi
 %doc %peclName-%{version}%{?prever}/{README,LICENSE}
 %{_libdir}/php/modules/%peclName.so
 %{pecl_xmldir}/%peclName.xml
-%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/php.d/%peclName.ini
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/php.d/%{ini_name}
 
 %changelog
+* Thu Jun 19 2014 Remi Collet <rcollet@redhat.com> - 1.1.7-0.1.RC2
+- update to 1.1.7RC2
+- rebuild for https://fedoraproject.org/wiki/Changes/Php56
+- add numerical prefix to extension configuration file
+
 * Sat Jun 07 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.1.0-0.10.RC2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_21_Mass_Rebuild
 
