@@ -1,48 +1,25 @@
-%global	php_apiver  %((echo 0; php -i 2>/dev/null | sed -n 's/^PHP API => //p') | tail -1)
-%{!?__pecl:		%{expand:	%%global __pecl	%{_bindir}/pecl}}
-%{!?php_extdir:	%{expand:	%%global php_extdir	%(php-config --extension-dir)}}
-
 %global	peclName   gmagick
-%global prever     RC2
-%if "%{php_version}" < "5.6"
-%global ini_name  %{peclName}.ini
-%else
+%global prever     RC1
 %global ini_name  40-%{peclName}.ini
-%endif
 
 Summary:		Provides a wrapper to the GraphicsMagick library
 Name:		php-pecl-%peclName
-Version:		1.1.7
-Release:		0.6.%{prever}%{?dist}
+Version:		2.0.4
+Release:		0.1.%{prever}%{?dist}
 License:		PHP
 Group:		Development/Libraries
 Source0:		http://pecl.php.net/get/%peclName-%{version}%{?prever}.tgz
 Source1:		%peclName.ini
-# It is for EPEL too, so BuildRoot stil needed
-BuildRoot:	%{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
 URL:			http://pecl.php.net/package/%peclName
-BuildRequires:	php-pear >= 1.4.7
-BuildRequires: php-devel >= 5.1.3, GraphicsMagick-devel >= 1.2.6
-%if 0%{?fedora} < 24
-Requires(post):	%{__pecl}
-Requires(postun):	%{__pecl}
-%endif
-%if 0%{?php_zend_api:1}
+BuildRequires:	php-pear
+BuildRequires:	php-devel >= 7
+BuildRequires:	GraphicsMagick-devel >= 1.3.17
 Requires:		php(zend-abi) = %{php_zend_api}
 Requires:		php(api) = %{php_core_api}
-%else
-Requires:		php-api = %{php_apiver}
-%endif
 Provides:		php-pecl(%peclName) = %{version}
 
 Conflicts:	php-pecl-imagick
 Conflicts:	php-magickwand
-
-# RPM 4.8
-%{?filter_provides_in: %filter_provides_in %{php_extdir}/.*\.so$}
-%{?filter_setup}
-# RPM 4.9
-%global __provides_exclude_from %{?__provides_exclude_from:%__provides_exclude_from|}%{php_extdir}/.*\\.so$
 
 
 %description
@@ -59,8 +36,6 @@ phpize
 make %{?_smp_mflags}
 
 %install
-rm -rf %{buildroot}
-
 cd %peclName-%{version}%{?prever}
 
 make install \
@@ -80,31 +55,21 @@ php --no-php-ini \
 	--define extension=gmagick.so \
 	-m | grep %peclName
 
-%clean
-rm -rf %{buildroot}
-
-%if 0%{?fedora} < 24
-%post
-%if 0%{?pecl_install:1}
-%{pecl_install} %{pecl_xmldir}/%peclName.xml >/dev/null || :
-%endif
-
-%postun
-%if 0%{?pecl_uninstall:1}
-if [ "$1" -eq "0" ]; then
-	%{pecl_uninstall} %peclName >/dev/null || :
-fi
-%endif
-%endif
 
 %files
-%defattr(-,root,root,-)
-%doc %peclName-%{version}%{?prever}/{README,LICENSE}
+%license %peclName-%{version}%{?prever}/LICENSE
+%doc %peclName-%{version}%{?prever}/*.md
 %{_libdir}/php/modules/%peclName.so
 %{pecl_xmldir}/%peclName.xml
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/php.d/%{ini_name}
 
 %changelog
+* Mon Jun 27 2016 Remi Collet <remi@fedoraproject.org> - 2.0.4-0.1.RC1
+- update to 2.0.4RC1
+- rebuild for https://fedoraproject.org/wiki/Changes/php70
+- spec cleanup
+- fix license installation
+
 * Thu Feb 25 2016 Remi Collet <remi@fedoraproject.org> - 1.1.7-0.6.RC2
 - drop scriptlets (replaced by file triggers in php-pear #1310546)
 
