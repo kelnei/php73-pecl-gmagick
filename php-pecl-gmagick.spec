@@ -47,7 +47,6 @@ install -m 0664 ../package.xml %{buildroot}%{pecl_xmldir}/%peclName.xml
 install -d %{buildroot}%{_sysconfdir}/php.d/
 install -m 0664 %{SOURCE1} %{buildroot}%{_sysconfdir}/php.d/%{ini_name}
 
-chmod 0644 README
 
 %check
 php --no-php-ini \
