@@ -5,7 +5,7 @@
 Summary:		Provides a wrapper to the GraphicsMagick library
 Name:		php-pecl-%peclName
 Version:		2.0.4
-Release:		0.5.%{prever}%{?dist}
+Release:		0.6.%{prever}%{?dist}
 License:		PHP
 Group:		Development/Libraries
 Source0:		http://pecl.php.net/get/%peclName-%{version}%{?prever}.tgz
@@ -63,6 +63,9 @@ php --no-php-ini \
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/php.d/%{ini_name}
 
 %changelog
+* Tue Oct 03 2017 Remi Collet <remi@fedoraproject.org> - 2.0.4-0.6.RC1
+- rebuild for https://fedoraproject.org/wiki/Changes/php72
+
 * Thu Aug 03 2017 Fedora Release Engineering <releng@fedoraproject.org> - 2.0.4-0.5.RC1
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_27_Binutils_Mass_Rebuild
 
