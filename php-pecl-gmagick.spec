@@ -7,7 +7,6 @@ Name:		php-pecl-%peclName
 Version:		2.0.4
 Release:		0.9.%{prever}%{?dist}
 License:		PHP
-Group:		Development/Libraries
 Source0:		http://pecl.php.net/get/%peclName-%{version}%{?prever}.tgz
 Source1:		%peclName.ini
 URL:			http://pecl.php.net/package/%peclName
