@@ -1,67 +1,93 @@
-%global	peclName   gmagick
+# IUS spec file for php73-pecl-gmagick, forked from:
+#
+# Fedora spec file for php-pecl-gmagick
+#
+%global pecl_name  gmagick
 %global prever     RC1
-%global ini_name  40-%{peclName}.ini
+%global ini_name   40-%{pecl_name}.ini
+%global php        php73
 
-Summary:		Provides a wrapper to the GraphicsMagick library
-Name:		php-pecl-%peclName
-Version:		2.0.4
-Release:		0.10.%{prever}%{?dist}
-License:		PHP
-Source0:		http://pecl.php.net/get/%peclName-%{version}%{?prever}.tgz
-Source1:		%peclName.ini
-URL:			http://pecl.php.net/package/%peclName
-BuildRequires:	php-pear
-BuildRequires:	php-devel >= 7
-BuildRequires:	GraphicsMagick-devel >= 1.3.17
-Requires:		php(zend-abi) = %{php_zend_api}
-Requires:		php(api) = %{php_core_api}
-Provides:		php-pecl(%peclName) = %{version}
+Summary:        Provides a wrapper to the GraphicsMagick library
+Name:           %{php}-pecl-%{pecl_name}
+Version:        2.0.4
+Release:        0.10.%{prever}%{?dist}
+Source0:        https://pecl.php.net/get/%{pecl_name}-%{version}%{?prever}.tgz
+Source1:        %{pecl_name}.ini
+License:        PHP
+Group:          System Environment/Libraries
+URL:            https://pecl.php.net/package/%{pecl_name}
 
-Conflicts:	php-pecl-imagick
-Conflicts:	php-magickwand
+BuildRequires:  php-pear
+BuildRequires:  %{php}-devel
+BuildRequires:  GraphicsMagick-devel >= 1.3.17
+
+Requires:       php(zend-abi) = %{php_zend_api}
+Requires:       php(api) = %{php_core_api}
+
+Provides:       php-pecl(%{pecl_name}) = %{version}
+
+Conflicts:      php-pecl-imagick
+Conflicts:      php-magickwand
+
+# safe replacement
+Provides:       php-pecl-%{pecl_name} = %{version}-%{release}
+Provides:       php-pecl-%{pecl_name}%{?_isa} = %{version}-%{release}
+Conflicts:      php-pecl-%{pecl_name} < %{version}-%{release}
+
+%{?filter_provides_in: %filter_provides_in %{php_extdir}/.*\.so$}
+%{?filter_provides_in: %filter_provides_in %{php_ztsextdir}/.*\.so$}
+%{?filter_setup}
 
 
 %description
-%peclName is a php extension to create, modify and obtain meta information of
+%{pecl_name} is a php extension to create, modify and obtain meta information of
 images using the GraphicsMagick API.
+
 
 %prep
 %setup -qc
 
 %build
-cd %peclName-%{version}%{?prever}
-phpize
-%{configure} --with-%peclName
-make %{?_smp_mflags}
+pushd %{pecl_name}-%{version}%{?prever}
+%{_bindir}/phpize
+%{configure} \
+  --with-%{pecl_name} \
+  --with-php-config=%{_bindir}/php-config
+%make_build
+popd
 
 %install
-cd %peclName-%{version}%{?prever}
+pushd %{pecl_name}-%{version}%{?prever}
 
 make install \
-	INSTALL_ROOT=%{buildroot}
+    INSTALL_ROOT=%{buildroot}
 
 # Install XML package description
 install -m 0755 -d %{buildroot}%{pecl_xmldir}
-install -m 0664 ../package.xml %{buildroot}%{pecl_xmldir}/%peclName.xml
+install -m 0664 ../package.xml %{buildroot}%{pecl_xmldir}/%{pecl_name}.xml
 install -d %{buildroot}%{_sysconfdir}/php.d/
 install -m 0664 %{SOURCE1} %{buildroot}%{_sysconfdir}/php.d/%{ini_name}
+popd
 
 
 %check
-php --no-php-ini \
-	--define extension_dir=%{buildroot}%{php_extdir} \
-	--define extension=gmagick.so \
-	-m | grep %peclName
+%{__php} --no-php-ini \
+    -define extension_dir=%{buildroot}%{php_extdir} \
+    -define extension=gmagick.so \
+    -m | grep %{pecl_name}
 
 
 %files
-%license %peclName-%{version}%{?prever}/LICENSE
-%doc %peclName-%{version}%{?prever}/*.md
-%{_libdir}/php/modules/%peclName.so
-%{pecl_xmldir}/%peclName.xml
+%license %{pecl_name}-%{version}%{?prever}/LICENSE
+%doc %{pecl_name}-%{version}%{?prever}/*.md
+%{_libdir}/php/modules/%{pecl_name}.so
+%{pecl_xmldir}/%{pecl_name}.xml
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/php.d/%{ini_name}
 
 %changelog
+* Wed May 01 2019 Matt Linscott <matt.linscott@gmail.com> - 2.0.4-0.10.RC1
+- Port from Fedora to IUS
+
 * Sat Feb 02 2019 Fedora Release Engineering <releng@fedoraproject.org> - 2.0.4-0.10.RC1
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_30_Mass_Rebuild
 
