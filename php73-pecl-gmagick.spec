@@ -17,9 +17,15 @@ License:        PHP
 Group:          System Environment/Libraries
 URL:            https://pecl.php.net/package/%{pecl_name}
 
-BuildRequires:  php-pear
 BuildRequires:  %{php}-devel
 BuildRequires:  GraphicsMagick-devel >= 1.3.17
+
+BuildRequires:  pear1u
+# explicitly require pear dependencies to avoid conflicts
+BuildRequires:  %{php}-cli
+BuildRequires:  %{php}-common
+BuildRequires:  %{php}-process
+BuildRequires:  %{php}-xml
 
 Requires:       php(zend-abi) = %{php_zend_api}
 Requires:       php(api) = %{php_core_api}
@@ -77,6 +83,24 @@ popd
     -m | grep %{pecl_name}
 
 
+%triggerin -- pear1u
+if [ -x %{__pecl} ]; then
+    %{pecl_install} %{pecl_xmldir}/%{pecl_name}.xml >/dev/null || :
+fi
+
+
+%posttrans
+if [ -x %{__pecl} ]; then
+    %{pecl_install} %{pecl_xmldir}/%{pecl_name}.xml >/dev/null || :
+fi
+
+
+%postun
+if [ $1 -eq 0 -a -x %{__pecl} ]; then
+    %{pecl_uninstall} %{pecl_name} >/dev/null || :
+fi
+
+
 %files
 %license %{pecl_name}-%{version}%{?prever}/LICENSE
 %doc %{pecl_name}-%{version}%{?prever}/*.md
@@ -87,6 +111,7 @@ popd
 %changelog
 * Wed May 01 2019 Matt Linscott <matt.linscott@gmail.com> - 2.0.4-0.10.RC1
 - Port from Fedora to IUS
+- Remove pear requirement and add scriptlets (adapted from remirepo)
 
 * Sat Feb 02 2019 Fedora Release Engineering <releng@fedoraproject.org> - 2.0.4-0.10.RC1
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_30_Mass_Rebuild
