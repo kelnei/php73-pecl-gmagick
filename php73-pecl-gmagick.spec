@@ -56,6 +56,8 @@ images using the GraphicsMagick API.
 %setup -qc
 mv %{pecl_name}-%{version}%{?prever} NTS
 
+sed -e '/LICENSE/s/role="doc"/role="src"/' -i package.xml
+
 extver=$(sed -n '/#define PHP_GMAGICK_VERSION/{s/.* "//;s/".*$//;p}' NTS/php_gmagick.h)
 if test "x${extver}" != "x%{version}%{?prever}"; then
    : Error: Upstream version is ${extver}, expecting %{version}%{?prever}.
@@ -88,12 +90,21 @@ popd
 %install
 make install INSTALL_ROOT=%{buildroot} -C NTS
 
+# Install configuration file
+install -D -m 644 %{SOURCE1} %{buildroot}%{php_inidir}/%{ini_name}
+
 # Install XML package description
-install -m 0755 -d %{buildroot}%{pecl_xmldir}
-install -m 0664 package.xml %{buildroot}%{pecl_xmldir}/%{pecl_name}.xml
-install -d %{buildroot}%{_sysconfdir}/php.d/
-install -m 0664 %{SOURCE1} %{buildroot}%{_sysconfdir}/php.d/%{ini_name}
-popd
+install -D -p -m 644 package.xml %{buildroot}%{pecl_xmldir}/%{pecl_name}.xml
+
+%if %{with zts}
+make install INSTALL_ROOT=%{buildroot} -C ZTS
+install -D -m 644 %{ini_name} %{buildroot}%{php_ztsinidir}/%{ini_name}
+%endif
+
+# Documentation
+for i in $(grep 'role="doc"' package.xml | sed -e 's/^.*name="//;s/".*$//')
+do [ -f NTS/$i ] && install -D -p -m 644 NTS/$i %{buildroot}%{pecl_docdir}/%{pecl_name}/$i
+done
 
 
 %check
@@ -139,7 +150,7 @@ fi
 
 %files
 %license NTS/LICENSE
-%doc %{pecl_name}-%{version}%{?prever}/*.md
+%doc %{pecl_docdir}/%{pecl_name}
 %{pecl_xmldir}/%{pecl_name}.xml
 
 %config(noreplace) %{php_inidir}/%{ini_name}
@@ -157,6 +168,7 @@ fi
 - Enable tests
 - Split build in seperate NTS/ZTS builds
 - Add version check against header
+- Clean up installs and documentation
 
 * Sat Feb 02 2019 Fedora Release Engineering <releng@fedoraproject.org> - 2.0.4-0.10.RC1
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_30_Mass_Rebuild
