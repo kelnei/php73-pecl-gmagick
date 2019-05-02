@@ -77,10 +77,19 @@ popd
 
 
 %check
+export REPORT_EXIT_STATUS=1
+
+pushd %{pecl_name}-%{version}%{?prever}
 %{__php} --no-php-ini \
-    -define extension_dir=%{buildroot}%{php_extdir} \
-    -define extension=gmagick.so \
-    -m | grep %{pecl_name}
+    --define extension_dir=%{buildroot}%{php_extdir} \
+    --define extension=%{pecl_name}.so \
+    --modules | grep %{pecl_name}
+
+TEST_PHP_EXECUTABLE=%{__php} \
+TEST_PHP_ARGS="-n -d extension=%{buildroot}%{php_extdir}/%{pecl_name}.so" \
+NO_INTERACTION=1 \
+%{__php} -n run-tests.php --show-diff
+popd
 
 
 %triggerin -- pear1u
@@ -112,6 +121,7 @@ fi
 * Wed May 01 2019 Matt Linscott <matt.linscott@gmail.com> - 2.0.4-0.10.RC1
 - Port from Fedora to IUS
 - Remove pear requirement and add scriptlets (adapted from remirepo)
+- Enable tests
 
 * Sat Feb 02 2019 Fedora Release Engineering <releng@fedoraproject.org> - 2.0.4-0.10.RC1
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_30_Mass_Rebuild
