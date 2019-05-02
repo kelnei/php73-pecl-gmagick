@@ -56,6 +56,12 @@ images using the GraphicsMagick API.
 %setup -qc
 mv %{pecl_name}-%{version}%{?prever} NTS
 
+extver=$(sed -n '/#define PHP_GMAGICK_VERSION/{s/.* "//;s/".*$//;p}' NTS/php_gmagick.h)
+if test "x${extver}" != "x%{version}%{?prever}"; then
+   : Error: Upstream version is ${extver}, expecting %{version}%{?prever}.
+   exit 1
+fi
+
 %if %{with zts}
 cp -r NTS ZTS
 %endif
@@ -150,6 +156,7 @@ fi
 - Remove pear requirement and add scriptlets (adapted from remirepo)
 - Enable tests
 - Split build in seperate NTS/ZTS builds
+- Add version check against header
 
 * Sat Feb 02 2019 Fedora Release Engineering <releng@fedoraproject.org> - 2.0.4-0.10.RC1
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_30_Mass_Rebuild
