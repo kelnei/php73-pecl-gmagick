@@ -7,6 +7,8 @@
 %global ini_name   40-%{pecl_name}.ini
 %global php        php73
 
+%bcond_with zts
+
 Summary:        Provides a wrapper to the GraphicsMagick library
 Name:           %{php}-pecl-%{pecl_name}
 Version:        2.0.4
@@ -52,25 +54,37 @@ images using the GraphicsMagick API.
 
 %prep
 %setup -qc
+mv %{pecl_name}-%{version}%{?prever} NTS
+
+%if %{with zts}
+cp -r NTS ZTS
+%endif
 
 %build
-pushd %{pecl_name}-%{version}%{?prever}
+pushd NTS
 %{_bindir}/phpize
 %{configure} \
-  --with-%{pecl_name} \
+  --with-%{pecl_name}=%{prefix} \
   --with-php-config=%{_bindir}/php-config
 %make_build
 popd
 
-%install
-pushd %{pecl_name}-%{version}%{?prever}
+%if %{with zts}
+pushd ZTS
+%{_bindir}/zts-phpize
+%configure \
+  --with-%{pecl_name}=%{prefix} \
+  --with-php-config=%{_bindir}/zts-php-config
+%make_build
+popd
+%endif
 
-make install \
-    INSTALL_ROOT=%{buildroot}
+%install
+make install INSTALL_ROOT=%{buildroot} -C NTS
 
 # Install XML package description
 install -m 0755 -d %{buildroot}%{pecl_xmldir}
-install -m 0664 ../package.xml %{buildroot}%{pecl_xmldir}/%{pecl_name}.xml
+install -m 0664 package.xml %{buildroot}%{pecl_xmldir}/%{pecl_name}.xml
 install -d %{buildroot}%{_sysconfdir}/php.d/
 install -m 0664 %{SOURCE1} %{buildroot}%{_sysconfdir}/php.d/%{ini_name}
 popd
@@ -79,7 +93,7 @@ popd
 %check
 export REPORT_EXIT_STATUS=1
 
-pushd %{pecl_name}-%{version}%{?prever}
+pushd NTS
 %{__php} --no-php-ini \
     --define extension_dir=%{buildroot}%{php_extdir} \
     --define extension=%{pecl_name}.so \
@@ -90,6 +104,13 @@ TEST_PHP_ARGS="-n -d extension=%{buildroot}%{php_extdir}/%{pecl_name}.so" \
 NO_INTERACTION=1 \
 %{__php} -n run-tests.php --show-diff
 popd
+
+%if %{with zts}
+%{__ztsphp} --no-php-ini \
+    --define extension_dir=%{buildroot}%{php_ztsextdir} \
+    --define extension=%{pecl_name}.so \
+    --modules | grep %{pecl_name}
+%endif
 
 
 %triggerin -- pear1u
@@ -111,17 +132,24 @@ fi
 
 
 %files
-%license %{pecl_name}-%{version}%{?prever}/LICENSE
+%license NTS/LICENSE
 %doc %{pecl_name}-%{version}%{?prever}/*.md
-%{_libdir}/php/modules/%{pecl_name}.so
 %{pecl_xmldir}/%{pecl_name}.xml
-%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/php.d/%{ini_name}
+
+%config(noreplace) %{php_inidir}/%{ini_name}
+%{php_extdir}/%{pecl_name}.so
+
+%if %{with zts}
+%config(noreplace) %{php_ztsinidir}/%{ini_name}
+%{php_ztsextdir}/%{pecl_name}.so
+%endif
 
 %changelog
 * Wed May 01 2019 Matt Linscott <matt.linscott@gmail.com> - 2.0.4-0.10.RC1
 - Port from Fedora to IUS
 - Remove pear requirement and add scriptlets (adapted from remirepo)
 - Enable tests
+- Split build in seperate NTS/ZTS builds
 
 * Sat Feb 02 2019 Fedora Release Engineering <releng@fedoraproject.org> - 2.0.4-0.10.RC1
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_30_Mass_Rebuild
